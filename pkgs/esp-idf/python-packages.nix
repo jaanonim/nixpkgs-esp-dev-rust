@@ -152,7 +152,7 @@ rec {
 
     propagatedBuildInputs = [
       kconfiglib
-
+      pyparsing
       # These packages aren't declared as dependencies but will fail idf.py's
       # initial dependency check.
       intelhex
