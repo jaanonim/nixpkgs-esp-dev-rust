@@ -3,17 +3,11 @@
 , stdenv
 , lib
 , fetchurl
-, makeWrapper
-, buildFHSUserEnv
+, autoPatchelfHook
+, zlib
+, libxml2
 }:
 
-let
-  fhsEnv = buildFHSUserEnv {
-    name = "xtensa-toolchain-env";
-    targetPkgs = pkgs: with pkgs; [ zlib libxml2 ];
-    runScript = "";
-  };
-in
 
 assert stdenv.system == "x86_64-linux";
 
@@ -25,7 +19,8 @@ stdenv.mkDerivation rec {
     inherit hash;
   };
 
-  buildInputs = [ makeWrapper ];
+  nativeBuildInputs = [ autoPatchelfHook ];
+  buildInputs = [ zlib libxml2 ];
 
   phases = [ "unpackPhase" "installPhase" ];
 

@@ -23,8 +23,6 @@
           esp-idf-esp32c6
           esp-idf-esp32h2
 
-          crosstool-ng-xtensa
-          gcc-xtensa-lx106-elf
 
           espflash
           ldproxy
