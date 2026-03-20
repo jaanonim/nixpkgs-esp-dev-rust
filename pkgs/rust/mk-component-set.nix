@@ -66,19 +66,25 @@ let
         runHook postInstall
       '';
 
-      postInstall = ''
-        # Function moves well-known files from etc/
-        handleEtc() {
-          if [[ -d "$1" ]]; then
-            mkdir -p "$(dirname "$2")"
-            mv -T "$1" "$2"
-          fi
-        }
-        if [[ -e "$out/etc" ]]; then
-          handleEtc "$out/etc/bash_completion.d" "$out/share/bash-completion/completions"
-          rmdir $out/etc || { echo "Installer tries to install to /etc: $(ls $out/etc)"; exit 1; }
-        fi
-      '';
+       postInstall = ''
+         # Function moves files from etc/ to alternative locations
+         handleEtc() {
+           if [[ -d "$1" ]]; then
+             mkdir -p "$(dirname "$2")"
+             mv -T "$1" "$2"
+           fi
+         }
+         if [[ -e "$out/etc" ]]; then
+           handleEtc "$out/etc/bash_completion.d" "$out/share/bash-completion/completions"
+           # Move any remaining files to share/misc
+           if [[ -d "$out/etc" ]] && [[ $(ls -A "$out/etc") ]]; then
+             mkdir -p "$out/share/misc"
+             mv "$out/etc"/* "$out/share/misc/"
+           fi
+           rmdir "$out/etc" || true
+         fi
+       '';
+
 
       # Only contain tons of html files. Don't waste time scanning files.
       dontFixup = elem pname [ "rust-docs" "rustc-docs" ];

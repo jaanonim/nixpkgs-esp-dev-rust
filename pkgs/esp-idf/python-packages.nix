@@ -9,8 +9,7 @@
   fetchurl,
   pythonPackages,
 }:
-with pythonPackages;
-rec {
+with pythonPackages; rec {
   idf-component-manager = buildPythonPackage rec {
     pname = "idf-component-manager";
     version = "3.0.0";
@@ -27,32 +26,34 @@ rec {
     ];
     doCheck = false;
 
-    propagatedBuildInputs = [
-      cachecontrol
-      cffi
-      click
-      colorama
-      jsonref
+    propagatedBuildInputs =
+      [
+        cachecontrol
+        cffi
+        click
+        colorama
+        jsonref
 
-      pydantic
-      pydantic-core
-      pydantic-core
-      pydantic-settings
-      pyparsing
+        pydantic
+        pydantic-core
+        pydantic-core
+        pydantic-settings
+        pyparsing
 
-      packaging
-      pyyaml
-      ruamel-yaml
-      requests
-      requests-file
-      requests-toolbelt
-      schema
-      six
-      tqdm
-      typing-extensions
-      truststore
-    ]
-    ++ cachecontrol.optional-dependencies.filecache;
+        packaging
+        pyyaml
+        ruamel-yaml
+        requests
+        requests-file
+        requests-toolbelt
+        schema
+        six
+        tqdm
+        typing-extensions
+        truststore
+        psutil
+      ]
+      ++ cachecontrol.optional-dependencies.filecache;
 
     meta = {
       homepage = "https://github.com/espressif/idf-component-manager";
@@ -112,6 +113,8 @@ rec {
       pyserial
       reedsolo
       pyyaml
+      rich-click
+      click
     ];
 
     # Replaces esptool.py import with .esptool.py-wrapped
@@ -239,7 +242,7 @@ rec {
       cryptography
     ];
 
-    pythonImportsCheck = [ "esp_idf_nvs_partition_gen" ];
+    pythonImportsCheck = ["esp_idf_nvs_partition_gen"];
 
     meta = {
       homepage = "https://pypi.org/project/esp-idf-nvs-partition-gen/";
