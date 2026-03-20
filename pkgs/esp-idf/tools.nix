@@ -14,9 +14,9 @@
 , glibc
 , ncurses5
 , python3
-, python310
-, python311
-, python312
+, python310 ? null
+, python311 ? null
+, python312 ? null
 , libxml2_13
 }:
 
@@ -38,11 +38,11 @@ let
     libusb1
     udev
     python3
-    python310
-    python311
-    python312
     libxml2_13
-  ];
+  ]
+  ++ lib.optionals (python310 != null) [ python310 ]
+  ++ lib.optionals (python311 != null) [ python311 ]
+  ++ lib.optionals (python312 != null) [ python312 ];
 
   toolSpecToDerivation = toolSpec:
     let
