@@ -1,5 +1,5 @@
-{ version ? "17.0.1_20240419"
-, hash ? "sha256-xNS+9AUyt3eQe981zxDZFDKkxrg1HuCiHPMzL8mqvbE="
+{ version ? "21.1.3_20260304"
+, hash ? "sha256-IPyu9+AhXl+d9TI4rTSKtmlwJ7O5UtMAxVgNunrITMU="
 , stdenv
 , lib
 , fetchurl
