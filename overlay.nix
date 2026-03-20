@@ -1,6 +1,5 @@
-final: prev:
-rec {
-  esp-idf-full = final.callPackage ./pkgs/esp-idf { };
+final: prev: rec {
+  esp-idf-full = final.callPackage ./pkgs/esp-idf {};
 
   esp-idf-esp32 = esp-idf-full.override {
     toolsToInclude = [
@@ -32,7 +31,7 @@ rec {
 
   esp-idf-esp32s3 = esp-idf-full.override {
     toolsToInclude = [
-      "xtensa-esp32s3-elf"
+      "xtensa-esp-elf"
       "esp32ulp-elf"
       "openocd-esp32"
       "xtensa-esp-elf-gdb"
@@ -40,15 +39,19 @@ rec {
   };
 
   # LLVM
-  llvm-xtensa = prev.callPackage ./pkgs/llvm-xtensa-bin.nix { };
-  llvm-xtensa-lib = prev.callPackage ./pkgs/llvm-xtensa-lib.nix { };
+  llvm-xtensa = prev.callPackage ./pkgs/llvm-xtensa-bin.nix {};
+  llvm-xtensa-lib = prev.callPackage ./pkgs/llvm-xtensa-lib.nix {};
 
   # Rust
-  rust-xtensa = (import ./pkgs/rust-xtensa-bin.nix { rust = prev.rust; callPackage = prev.callPackage; lib = prev.lib; stdenv = prev.stdenv; fetchurl = prev.fetchurl; });
+  rust-xtensa = import ./pkgs/rust-xtensa-bin.nix {
+    rust = prev.rust;
+    callPackage = prev.callPackage;
+    lib = prev.lib;
+    stdenv = prev.stdenv;
+    fetchurl = prev.fetchurl;
+  };
 
   esp-idf-esp32c6 = esp-idf-riscv;
 
   esp-idf-esp32h2 = esp-idf-riscv;
-
-
 }

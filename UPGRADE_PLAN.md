@@ -4,11 +4,13 @@
 
 - ✅ Phase B: `flake.nix` now tracks `nixos-unstable` and `flake.lock` points at an unstable revision.
 - ✅ Phase C: ESP8266 support removed from public outputs and tests (branch/commit exists that removed esp8266 subtree and references).
-- ✅ Phase D: ESP-IDF core overlays and Python package pins now aligned to v6.0; Nix evaluation and build succeed for esp-idf-full (with insecure python workaround for ecdsa, see Phase D notes). Legacy eval/override issues addressed. Validation of example/test outputs and other targets is ongoing; Phase E is next.
+ - ✅ Phase D: ESP-IDF core overlays and Python package pins now aligned to v6.0; Nix evaluation and build succeed for esp-idf-full (with insecure python workaround for ecdsa, see Phase D notes). Legacy eval/override issues addressed. Validation of example/test outputs and other targets is ongoing; Phase E is next.
 - 🔲 Phase E: LLVM and Rust xtensa binaries still use older planned versions and need bumping.
  - 🔲 Phase F: Shell environment variables still export `ESP_IDF_VERSION=v4.4.1` (needs alignment once ESP-IDF/package pins are final).
 - ⚠️ A short stabilization step is required (see Phase D0) to make the current tree evaluable before further bumps — there are a few eval/runtime regressions introduced during the refresh (notably an overlay `urllib3` override mismatch).
 - ℹ️ README still needs update to reflect the current toolchain and removed targets.
+
+- ✅ Phase G: Resolve breakages — initial fixes applied and verification run completed (see Phase G notes below).
 
 ---
 

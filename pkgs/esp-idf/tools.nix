@@ -1,26 +1,23 @@
-{ toolSpecList # The `tools` entry in `tools/tools.json` in an ESP-IDF checkout.
-, versionSuffix # A string to use in the version of the tool derivations.
-
-, stdenv
-, lib
-, fetchurl
-, makeWrapper
-, autoPatchelfHook
-
+{
+  toolSpecList, # The `tools` entry in `tools/tools.json` in an ESP-IDF checkout.
+  versionSuffix, # A string to use in the version of the tool derivations.
+  stdenv,
+  lib,
+  fetchurl,
+  makeWrapper,
+  autoPatchelfHook,
   # Dependencies for the various binary tools.
-, zlib
-, libusb1
-, udev
-, glibc
-, ncurses5
-, python3
-, python310 ? null
-, python311 ? null
-, python312 ? null
-, libxml2_13
-}:
-
-let
+  zlib,
+  libusb1,
+  udev,
+  glibc,
+  ncurses5,
+  python3,
+  python310 ? null,
+  python311 ? null,
+  python312 ? null,
+  libxml2_13,
+}: let
   # Map nix system strings to the platforms listed in tools.json
   systemToToolPlatformString = {
     "x86_64-linux" = "linux-amd64";
@@ -30,28 +27,40 @@ let
   };
 
   # Common runtime dependencies for ELF binaries
-  commonRuntimeDeps = [
-    glibc
-    stdenv.cc.cc.lib
-    zlib
-    ncurses5
-    libusb1
-    udev
-    python3
-    libxml2_13
-  ]
-  ++ lib.optionals (python310 != null) [ python310 ]
-  ++ lib.optionals (python311 != null) [ python311 ]
-  ++ lib.optionals (python312 != null) [ python312 ];
+  commonRuntimeDeps =
+    [
+      glibc
+      stdenv.cc.cc.lib
+      zlib
+      ncurses5
+      libusb1
+      udev
+      python3
+      libxml2_13
+    ]
+    ++ lib.optionals (python310 != null) [python310]
+    ++ lib.optionals (python311 != null) [python311]
+    ++ lib.optionals (python312 != null) [python312];
 
-  toolSpecToDerivation = toolSpec:
-    let
-      targetPlatform = systemToToolPlatformString.${stdenv.hostPlatform.system};
-      targetVersionSpecs = builtins.elemAt toolSpec.versions 0;
-      targetVersionSpec = targetVersionSpecs.${targetPlatform} or targetVersionSpecs.any;
-      platformOverrides = builtins.filter (o: lib.elem targetPlatform o.platforms) (toolSpec.platform_overrides or []);
-      mergedToolSpec = lib.foldl' lib.recursiveUpdate toolSpec platformOverrides;
-    in
+  toolSpecToDerivation = toolSpec: let
+    targetPlatform = systemToToolPlatformString.${stdenv.hostPlatform.system};
+    targetVersionSpecs = builtins.elemAt toolSpec.versions 0;
+    # Prefer a platform-specific entry, fall back to an 'any' entry if present.
+    # Use getAttrDefault to avoid hard errors when neither key exists in the
+    # JSON (some tools.json entries may not include an 'any' fallback).
+    # Prefer a platform-specific entry, fall back to an 'any' entry if present.
+    targetVersionSpec =
+      if builtins.hasAttr targetPlatform targetVersionSpecs
+      then builtins.getAttr targetPlatform targetVersionSpecs
+      else
+        (
+          if targetVersionSpecs ? any
+          then targetVersionSpecs.any
+          else {}
+        );
+    platformOverrides = builtins.filter (o: lib.elem targetPlatform o.platforms) (toolSpec.platform_overrides or []);
+    mergedToolSpec = lib.foldl' lib.recursiveUpdate toolSpec platformOverrides;
+  in
     mkToolDerivation {
       pname = mergedToolSpec.name;
 
@@ -62,7 +71,7 @@ let
 
       description = mergedToolSpec.description;
       homepage = mergedToolSpec.info_url;
-      license = { spdxId = mergedToolSpec.license; };
+      license = {spdxId = mergedToolSpec.license;};
       url = targetVersionSpec.url;
       sha256 = targetVersionSpec.sha256;
       runtimeDeps = commonRuntimeDeps;
@@ -74,31 +83,36 @@ let
       exportPaths = builtins.filter (path: path != [""]) (mergedToolSpec.export_paths or []);
     };
 
-  mkToolDerivation =
-    { pname
-    , version
-    , description
-    , homepage
-    , license
-    , url
-    , sha256
-    , runtimeDeps
-    , exportVars
-    , stripContainerDirs
-    , exportPaths
-    }:
-
-    let
-      binPaths = map (path: lib.foldl' (a: b: if a == "" then b else "${a}/${b}") "" path) exportPaths;
-      exportVarsWrapperArgsList = lib.attrsets.mapAttrsToList (name: value: "--set \"${name}\" \"${value}\"") exportVars;
-    in stdenv.mkDerivation (finalAttrs: {
+  mkToolDerivation = {
+    pname,
+    version,
+    description,
+    homepage,
+    license,
+    url,
+    sha256,
+    runtimeDeps,
+    exportVars,
+    stripContainerDirs,
+    exportPaths,
+  }: let
+    binPaths = map (path:
+      lib.foldl' (a: b:
+        if a == ""
+        then b
+        else "${a}/${b}") ""
+      path)
+    exportPaths;
+    exportVarsWrapperArgsList = lib.attrsets.mapAttrsToList (name: value: "--set \"${name}\" \"${value}\"") exportVars;
+  in
+    stdenv.mkDerivation (finalAttrs: {
       inherit pname version;
 
       src = fetchurl {
         inherit url sha256;
       };
 
-      nativeBuildInputs = [ makeWrapper ] ++ lib.optionals stdenv.isLinux [ autoPatchelfHook ];
+      nativeBuildInputs = [makeWrapper] ++ lib.optionals stdenv.isLinux [autoPatchelfHook];
       buildInputs = lib.optionals stdenv.isLinux runtimeDeps;
 
       # Configure autoPatchelfHook to ignore missing Python libraries that aren't available
@@ -110,7 +124,7 @@ let
         "libpython3.6.so.1.0"
       ];
 
-      phases = [ "unpackPhase" "installPhase" ] ++ lib.optionals stdenv.isLinux [ "fixupPhase" ];
+      phases = ["unpackPhase" "installPhase"] ++ lib.optionals stdenv.isLinux ["fixupPhase"];
 
       setSourceRoot = ''sourceRoot=$(echo ./${lib.strings.replicate stripContainerDirs "*/"})'';
 
@@ -163,6 +177,5 @@ let
         exportVars = lib.mapAttrs (_: v: lib.replaceStrings ["\${TOOL_PATH}" "$TOOL_PATH"] [outPath outPath] v) exportVars;
       };
     });
-
 in
-builtins.listToAttrs (builtins.map (toolSpec: lib.attrsets.nameValuePair toolSpec.name (toolSpecToDerivation toolSpec)) toolSpecList)
+  builtins.listToAttrs (builtins.map (toolSpec: lib.attrsets.nameValuePair toolSpec.name (toolSpecToDerivation toolSpec)) toolSpecList)
