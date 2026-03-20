@@ -1,4 +1,4 @@
-# Nix Setup for developing Rust on ESP/NodeMCU
+# Nix Setup for developing Rust on ESP32
 
 This Branch contains a guide and a working example.
 
@@ -35,7 +35,7 @@ is provided by the [fork from hsel-netsys](https://github.com/hsel-netsys/nixpkg
 It's important to build for the correct version of the [ESP32-xx family](https://en.wikipedia.org/wiki/ESP32#ESP32-xx_family).
 The ESP-Board we use in this example is a [`ESP-WROOM-32`](https://en.wikipedia.org/wiki/ESP32#Printed_circuit_boards). It contains the ["original" `ESP32`](https://en.wikipedia.org/wiki/ESP32#ESP32) (without any suffix).
 
-The [original repository of mirrexagon](https://github.com/mirrexagon/nixpkgs-esp-dev) provides support for ESP8266 and ESP32(-C3, -S2, -S3, -C6, -H2).
+The [original repository of mirrexagon](https://github.com/mirrexagon/nixpkgs-esp-dev) provides support for ESP32(-C3, -S2, -S3, -C6, -H2).
 The [Rust Fork by hsel-netsys](https://github.com/hsel-netsys/nixpkgs-esp-dev-rust) provides a [nix-shell with rust support](shells/esp32s2-idf-rust.nix), but only for ESP32-**S2**. This is no problem, since the original `esp-idf-esp32`-package is still available from the [overlay](./overlay.nix).
 
 So we copy the shell with rust support and substitute the package `esp-idf-esp32s2` with `esp-idf-esp32` in `buildInputs`:

@@ -50,7 +50,5 @@ rec {
 
   esp-idf-esp32h2 = esp-idf-riscv;
 
-  # ESP8266
-  gcc-xtensa-lx106-elf-bin = prev.callPackage ./pkgs/esp8266-rtos-sdk/esp8266-toolchain-bin.nix { };
-  esp8266-rtos-sdk = prev.callPackage ./pkgs/esp8266-rtos-sdk/esp8266-rtos-sdk.nix { };
+
 }
