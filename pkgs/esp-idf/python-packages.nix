@@ -12,13 +12,13 @@
 with pythonPackages; rec {
   idf-component-manager = buildPythonPackage rec {
     pname = "idf-component-manager";
-    version = "3.0.0";
+    version = "2.4.8";
     pyproject = true;
 
     src = fetchPypi {
       inherit version;
       pname = "idf_component_manager";
-      sha256 = "sha256-YZTIOxIAg+/k+TifadSuGoK8cbvgp7h2p8yV2b4Yfc4=";
+      sha256 = "sha256-BElYRkHTaO1wNCJcfwfiL2NXQrAje9Z/3denTOkIgjU=";
     };
 
     build-system = [
